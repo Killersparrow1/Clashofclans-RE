@@ -1,0 +1,19 @@
+[package]
+name = "clash-of-clans-re-protocol"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Clash of Clans protocol implementation: framing, codec, NaCl crypto, handshake"
+keywords = ["clash-of-clans", "protocol", "reverse-engineering", "game-server", "crypto"]
+categories = ["network-programming", "game-development", "cryptography"]
+
+[dependencies]
+bytes = { workspace = true }
+libsodium-sys = { workspace = true }
+sodiumoxide = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+hex = { workspace = true }
+rand = { workspace = true }

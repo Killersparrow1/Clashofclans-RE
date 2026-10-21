@@ -1,0 +1,30 @@
+[workspace]
+resolver = "2"
+members = [
+    "clash-of-clans-re-client-test",
+    "clash-of-clans-re-protocol",
+    "clash-of-clans-re-server",
+    "clash-of-clans-re-server-bin",
+]
+
+[workspace.package]
+name = "clash-of-clans-re"
+version = "0.1.0"
+edition = "2024"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/killersparrow1/Clashofclans-RE"
+
+[workspace.dependencies]
+tokio = { version = "1.40", features = ["full"] }
+bytes = "1.8"
+libsodium-sys = "0.2"
+sodiumoxide = { version = "0.2", features = ["default"] }
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+thiserror = "2.0"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+anyhow = "1.0"
+hex = "0.4"
+rand = "0.8"
+dashmap = "5.5"

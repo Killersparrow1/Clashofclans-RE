@@ -1,0 +1,19 @@
+[package]
+name = "clash-of-clans-re-client-test"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Clash of Clans protocol test client"
+keywords = ["clash-of-clans", "protocol", "reverse-engineering", "game-server", "client"]
+categories = ["network-programming", "game-development"]
+
+[dependencies]
+clash-of-clans-re-protocol = { path = "../clash-of-clans-re-protocol" }
+tokio = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+anyhow = { workspace = true }
+hex = { workspace = true }
+bytes = { workspace = true }
+clap = { version = "4.5", features = ["derive"] }

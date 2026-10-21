@@ -1,0 +1,1 @@
+// Home/village logic - placeholder
