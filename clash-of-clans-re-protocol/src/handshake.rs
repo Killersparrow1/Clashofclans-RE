@@ -5,6 +5,11 @@ use crate::error::{ProtocolError, Result};
 use crate::framing::{Packet};
 use crate::messages::MessageId;
 
+/// Current protocol version (major << 8 | minor)
+pub const PROTOCOL_VERSION: u16 = 0x0100; // v1.0
+/// Minimum supported protocol version
+pub const MIN_PROTOCOL_VERSION: u16 = 0x0100; // v1.0
+
 pub struct HandshakeState {
     pub client_keys: Option<ClientKeys>,
     pub server_keypair: Option<(box_::PublicKey, box_::SecretKey)>,
@@ -13,6 +18,8 @@ pub struct HandshakeState {
     pub server_nonce: [u8; 24],
     pub client_seed: [u8; 24],
     pub stage: HandshakeStage,
+    /// Negotiated protocol version
+    pub negotiated_version: u16,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -36,10 +43,11 @@ impl HandshakeState {
             server_nonce: [0u8; 24],
             client_seed: [0u8; 24],
             stage: HandshakeStage::Initial,
+            negotiated_version: PROTOCOL_VERSION,
         }
     }
 
-pub fn with_keypair(server_keypair: (box_::PublicKey, box_::SecretKey)) -> Self {
+    pub fn with_keypair(server_keypair: (box_::PublicKey, box_::SecretKey)) -> Self {
         let server_public_key = server_keypair.0.0;
         let server_secret = server_keypair.1.0;
         Self {
@@ -48,12 +56,13 @@ pub fn with_keypair(server_keypair: (box_::PublicKey, box_::SecretKey)) -> Self 
             server_longterm_secret: Some(server_secret),
             server_public_key,
             server_nonce: [0u8; 24],
-client_seed: [0u8; 24],
+            client_seed: [0u8; 24],
             stage: HandshakeStage::Initial,
+            negotiated_version: PROTOCOL_VERSION,
         }
     }
 
-    pub fn create_client_hello(&mut self) -> Result<Packet> {
+pub fn create_client_hello(&mut self) -> Result<Packet> {
         let mut payload = BytesMut::new();
         payload.put_u32(0x07896541);
         payload.put_u32(0x00000000);
@@ -82,7 +91,11 @@ client_seed: [0u8; 24],
         payload.put_u32(0x00000000);
         payload.put_u32(0x00000000);
         payload.put_u32(0x00000000);
-
+        
+        // Protocol version negotiation (new field)
+        payload.put_u16(PROTOCOL_VERSION);        // Max supported version
+        payload.put_u16(MIN_PROTOCOL_VERSION);    // Min supported version
+        
         let packet = Packet::new(MessageId::ClientHello as u16, payload.freeze(), 0);
         self.stage = HandshakeStage::ClientHelloSent;
         Ok(packet)
@@ -93,11 +106,39 @@ client_seed: [0u8; 24],
             return Err(ProtocolError::HandshakeError("Expected Encryption packet".into()));
         }
         
-        if packet.payload.len() < 24 {
+        // Minimum payload: server_random (24) + selected_version (2) + min_version (2) = 28 bytes
+        if packet.payload.len() < 28 {
             return Err(ProtocolError::HandshakeError("Server hello too short".into()));
         }
         
         self.server_nonce.copy_from_slice(&packet.payload[..24]);
+        
+        // Parse negotiated version (2 bytes after server_random)
+        let selected_version = u16::from_be_bytes([
+            packet.payload[24],
+            packet.payload[25],
+        ]);
+        let min_version = u16::from_be_bytes([
+            packet.payload[26],
+            packet.payload[27],
+        ]);
+        
+        // Verify version compatibility
+        if selected_version < MIN_PROTOCOL_VERSION || selected_version > PROTOCOL_VERSION {
+            return Err(ProtocolError::HandshakeError(
+                format!("Incompatible protocol version: selected={:#06x}, supported={:#06x}-{:#06x}", 
+                    selected_version, MIN_PROTOCOL_VERSION, PROTOCOL_VERSION)
+            ));
+        }
+        
+        if min_version > PROTOCOL_VERSION {
+            return Err(ProtocolError::HandshakeError(
+                format!("Server requires higher protocol version: min={:#06x}, max={:#06x}", 
+                    min_version, PROTOCOL_VERSION)
+            ));
+        }
+        
+        self.negotiated_version = selected_version;
         self.stage = HandshakeStage::ServerHelloReceived;
         Ok(())
     }
@@ -108,6 +149,10 @@ client_seed: [0u8; 24],
         
         let mut payload = BytesMut::new();
         payload.extend_from_slice(&server_random);
+        
+        // Protocol version negotiation response
+        payload.put_u16(PROTOCOL_VERSION);      // Selected version (highest we support)
+        payload.put_u16(MIN_PROTOCOL_VERSION);  // Minimum version we support
         
         let packet = Packet::new(MessageId::Encryption as u16, payload.freeze(), 0);
         self.stage = HandshakeStage::ServerHelloReceived;
