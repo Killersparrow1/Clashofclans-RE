@@ -15,10 +15,13 @@ A clean-room implementation of the Clash of Clans networking protocol with a wor
 | **NaCl Crypto (libsodium)** | ✅ Complete | 2 passing |
 | **TCP Gateway Server** | ✅ Complete | 4 passing |
 | **Protocol Version Negotiation** | ✅ Complete (v1.0) | 1 passing |
+| **Game Data Structures** | ✅ Complete | 6 passing |
+| **CSV Asset Parsing** | ✅ Complete | 3 passing |
+| **Fingerprint/SC Parsing** | ✅ Complete | 3 passing |
+| **Key Extractor (Frida + Static)** | ✅ Complete | - |
 | **Game Logic (Logic\*)** | ⚠️ Stubs only | - |
-| **Asset Decryption** | ❌ Not started | - |
 
-**Current capability**: Full 4-step handshake with version negotiation → encrypted channel → packet echo server
+**Current capability**: Full 4-step handshake with version negotiation → encrypted channel → packet echo server + asset decryption framework
 
 ---
 
@@ -27,13 +30,15 @@ A clean-room implementation of the Clash of Clans networking protocol with a wor
 ```
 Clashofclans-RE/
 ├── clash-of-clans-re-protocol/     # Core protocol (framing, crypto, codec, handshake)
-├── clash-of-clans-re-server/       # Server library (gateway, sessions, state)
+├── clash-of-clans-re-assets/       # Asset decryption (CSV, SC, fingerprint)
+├── clash-of-clans-re-server/       # Server library (gateway, sessions, state, logic, key_extractor)
 ├── clash-of-clans-re-server-bin/   # Server binary
 ├── clash-of-clans-re-client-test/  # Test client for verification
 └── examples/                       # Keypair generator, etc.
 ```
 
 ### Protocol Flow
+
 ```
 Client                          Server
   │                                │
@@ -58,6 +63,7 @@ Client                          Server
 - libsodium (system package: `libsodium-dev` / `libsodium-devel`)
 
 ### Build & Run Server
+
 ```bash
 git clone https://github.com/killersparrow1/Clashofclans-RE
 cd Clashofclans-RE
@@ -77,6 +83,7 @@ cargo run -p clash-of-clans-re-server-bin -- \
 ```
 
 ### Run Test Client
+
 ```bash
 cargo run -p clash-of-clans-re-client-test -- \
   --addr 127.0.0.1:9339 \
@@ -94,6 +101,22 @@ Handshake complete!
 SUCCESS: Handshake completed successfully!
 ```
 
+### Run Tests
+
+```bash
+cargo test --workspace
+```
+
+### Extract Keys from APK (Optional)
+
+```bash
+# Using Frida (requires rooted device/emulator)
+cargo run -p clash-of-clans-re-server-bin -- --help  # Shows key extractor options
+
+# Frida-based extraction (runtime)
+# Static analysis (apktool + jadx + objdump)
+```
+
 ---
 
 ## 🔧 Protocol Details
@@ -101,6 +124,7 @@ SUCCESS: Handshake completed successfully!
 Full specification: **[PROTOCOL.md](PROTOCOL.md)**
 
 ### Packet Format
+
 ```
 +00: u16   Message ID (big-endian)
 +02: u24   Payload length (big-endian, 3 bytes)
@@ -109,22 +133,24 @@ Full specification: **[PROTOCOL.md](PROTOCOL.md)**
 ```
 
 ### Message IDs (Partial)
+
 | Range | Direction | Examples |
 |-------|-----------|----------|
 | 10100-19999 | Client→Server | ClientHello(10100), Login(10101), AttackHome(14106) |
 | 20000+ | Server→Client | Encryption(20000), LoginOk(20104), OwnHomeData(24101) |
 
 ### Handshake Crypto (NaCl/libsodium)
+
 1. **Server** generates long-term keypair `(pk_longterm, sk_longterm)`
 2. **Client** sends `ClientHello` with random seed
 3. **Server** responds with `ServerHello` (24-byte random)
 4. **Client** generates ephemeral keypair, computes shared key:  
    `shared = precompute(pk_server_longterm, sk_client)`
-5. **Client** sends `Login` encrypted with `shared`, includes client_pk
-6. **Server** computes: `shared = precompute(pk_client, sk_server_longterm)`
-7. **Server** generates session keypair, sends `Encryption Response` encrypted with `shared`, includes session_pk
-7. **Both** derive session shared key: `precompute(session_pk, sk_client) = precompute(pk_client, session_sk)`
-8. **All subsequent traffic** uses session shared key with incrementing nonces
+6. **Client** sends `Login` encrypted with `shared`, includes client_pk
+7. **Server** computes: `shared = precompute(pk_client, sk_server_longterm)`
+8. **Server** generates session keypair, sends `Encryption Response` encrypted with `shared`, includes session_pk
+9. **Both** derive session shared key: `precompute(session_pk, sk_client) = precompute(pk_client, session_sk)`
+10. **All subsequent traffic** uses session shared key with incrementing nonces
 
 ### Nonce Management
 - Two independent nonces: `snonce` (client→server), `rnonce` (server→client)
@@ -141,14 +167,21 @@ Core protocol implementation:
 - `codec` - VInt, VLong, String, DataReference, Boolean serialization
 - `crypto` - ClientKeys, key derivation, encryption/decryption
 - `handshake` - HandshakeState machine, ServerHello/Login handling
-- `messages` - 70+ MessageId enum with direction helpers
+- `messages` - 151 MessageId enum with direction helpers
+
+### `clash-of-clans-re-assets`
+Asset decryption and parsing:
+- `csv` - Encrypted CSV parser (AES-128-CBC, LZMA/zlib, CRC32)
+- `fingerprint` - Fingerprint.json parser (CRC32 verification)
+- `sc` - SC sprite container parser
 
 ### `clash-of-clans-re-server`
 Server infrastructure:
 - `gateway` - TCP listener, connection handling, packet pipeline
 - `session` - Session management with DashMap
 - `state` - SQLite persistence (players, alliances, home data)
-- `logic` - Stubs for LogicBuilding, LogicCharacter, etc.
+- `logic` - Game data structures (BuildingData, CharacterData, etc.)
+- `key_extractor` - Frida + Static analysis key extraction
 
 ### `clash-of-clans-re-server-bin`
 - CLI with `--addr`, `--database`, `--public-key`, `--secret-key`
@@ -249,13 +282,18 @@ See [LICENSE-MIT](LICENSE-MIT) and [LICENSE-APACHE](LICENSE-APACHE)
 - [x] Packet documentation (151 messages in `PROTOCOL.md`)
 - [x] Protocol version negotiation (v1.0)
 
-### Phase 2: Game Logic Foundation (Next)
-- [ ] CSV asset decryption (buildings.csv, characters.csv, etc.)
-- [ ] LogicBuilding / LogicCharacter data structures
-- [ ] Basic building placement/upgrades
-- [ ] Resource generation/collection
+### Phase 2: Game Logic Foundation — ✅ **COMPLETE** (v0.2.0)
+- [x] CSV asset decryption (buildings.csv, characters.csv, etc.)
+- [x] LogicBuilding / LogicCharacter data structures
+- [x] CSV parser with AES-128-CBC, LZMA/zlib, CRC32
+- [x] Fingerprint.json / SC file parsing
+- [x] Key extractor module (Frida + Static analysis)
 
-### Phase 3: Core Gameplay
+### Phase 3: Core Gameplay (Next)
+- [ ] CSV key extraction from APK (Frida/Static)
+- [ ] Real CSV parsing (buildings.csv, characters.csv)
+- [ ] Building placement/upgrade logic
+- [ ] Resource generation/collection
 - [ ] Attack simulation (LogicCombat)
 - [ ] Troop deployment & pathfinding
 - [ ] Spell effects
@@ -309,7 +347,7 @@ cargo fmt --check
 | Document MessageId enum with comments | Easy | `clash-of-clans-re-protocol/src/messages/` |
 | Add packet logging feature flag | Easy | `clash-of-clans-re-server/src/gateway.rs` |
 | Implement LoginOk response payload | Medium | `clash-of-clans-re-protocol/src/handshake.rs` |
-| CSV asset parser for buildings.csv | Medium | New crate `clash-of-clans-re-assets` |
+| CSV key extraction from APK | Hard | `clash-of-clans-re-server/src/key_extractor/` |
 
 ---
 
@@ -325,6 +363,8 @@ cargo fmt --check
 - **tokio** - Async runtime
 - **sqlx** - SQLite async
 - **dashmap** - Concurrent HashMap
+- **aes/cbc** - AES encryption
+- **crc32fast** - CRC32 checksums
 
 ### Research Posts
 - [Giovanni Rocca's Supercell RE series](http://www.giovanni-rocca.com/reverse-engineering-supercell-part-4/)
