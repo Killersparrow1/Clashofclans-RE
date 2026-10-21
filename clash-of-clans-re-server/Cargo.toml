@@ -25,3 +25,5 @@ dashmap = { workspace = true }
 hex = { workspace = true }
 sodiumoxide = { workspace = true }
 log = "0.4"
+uuid = { version = "1.0", features = ["v4", "serde"] }
+bincode = "1.3"

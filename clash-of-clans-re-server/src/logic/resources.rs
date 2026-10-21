@@ -286,3 +286,5 @@ mod tests {
         assert_eq!(mgr.gold.amount, 400);
     }
 }
+
+pub use super::game_data::ResourceCost;

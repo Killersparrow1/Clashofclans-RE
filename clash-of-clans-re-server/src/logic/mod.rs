@@ -30,5 +30,7 @@ pub use resources::{
 
 pub use combat::{
     Position, DeployedTroop, TroopState, Target,
-    Battle, BattleState, find_path,
+    Battle, BattleState, SpellState, HeroState,
+    DeployedSpell, DeployedHero, CharacterDataSnapshot,
+    find_path,
 };
