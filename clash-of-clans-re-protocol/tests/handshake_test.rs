@@ -1,4 +1,4 @@
-use coc_protocol::{HandshakeState, Packet, MessageId, crypto};
+use clash_of_clans_re_protocol::{HandshakeState, Packet, MessageId, crypto};
 
 #[test]
 fn test_full_handshake() {

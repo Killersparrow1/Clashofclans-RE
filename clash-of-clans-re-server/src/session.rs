@@ -2,7 +2,7 @@ use std::net::SocketAddr;
 use std::sync::Arc;
 use std::time::Instant;
 use tokio::sync::Mutex;
-use coc_protocol::{Packet, PacketBuffer};
+use clash_of_clans_re_protocol::{Packet, PacketBuffer};
 use crate::error::{ServerError, Result};
 
 pub struct Session {

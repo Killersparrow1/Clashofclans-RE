@@ -216,13 +216,13 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1c133bc6a41be0d194c306b5506d15e6feeea7b1d6604bd3f8310dfb2ca96486"
 
 [[package]]
-name = "coc-client-test"
+name = "clash-of-clans-re-client-test"
 version = "0.1.0"
 dependencies = [
  "anyhow",
  "bytes",
  "clap",
- "coc-protocol",
+ "clash-of-clans-re-protocol",
  "hex",
  "tokio",
  "tracing",
@@ -230,7 +230,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "coc-protocol"
+name = "clash-of-clans-re-protocol"
 version = "0.1.0"
 dependencies = [
  "bytes",
@@ -244,13 +244,13 @@ dependencies = [
 ]
 
 [[package]]
-name = "coc-server"
+name = "clash-of-clans-re-server"
 version = "0.1.0"
 dependencies = [
  "anyhow",
  "bytes",
  "chrono",
- "coc-protocol",
+ "clash-of-clans-re-protocol",
  "dashmap",
  "hex",
  "serde",
@@ -264,13 +264,13 @@ dependencies = [
 ]
 
 [[package]]
-name = "coc-server-bin"
+name = "clash-of-clans-re-server-bin"
 version = "0.1.0"
 dependencies = [
  "anyhow",
  "clap",
- "coc-protocol",
- "coc-server",
+ "clash-of-clans-re-protocol",
+ "clash-of-clans-re-server",
  "hex",
  "tokio",
  "tracing",

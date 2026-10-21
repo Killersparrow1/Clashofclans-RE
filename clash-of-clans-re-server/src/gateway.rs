@@ -4,7 +4,7 @@ use tokio::net::{TcpListener, TcpStream};
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tracing::{info, error, debug};
 use sodiumoxide::crypto::box_;
-use coc_protocol::{Packet, MessageId, ProtocolCodec};
+use clash_of_clans_re_protocol::{Packet, MessageId, ProtocolCodec};
 use crate::session::{SessionManager, SessionRef};
 use crate::error::{Result};
 
@@ -68,10 +68,10 @@ async fn handle_connection(
     let mut buffer = [0u8; 4096];
     
     // Long-term server keypair (known to clients)
-    let mut handshake_state = coc_protocol::HandshakeState::with_keypair(server_longterm_keypair);
+    let mut handshake_state = clash_of_clans_re_protocol::HandshakeState::with_keypair(server_longterm_keypair);
     
     // Ephemeral session keypair
-    let server_session_keypair = coc_protocol::crypto::generate_server_keypair();
+    let server_session_keypair = clash_of_clans_re_protocol::crypto::generate_server_keypair();
     handshake_state.server_keypair = Some(server_session_keypair);
     
     loop {
@@ -112,29 +112,29 @@ async fn handle_connection(
 }
 
 async fn process_packet(
-    handshake_state: &mut coc_protocol::HandshakeState,
+    handshake_state: &mut clash_of_clans_re_protocol::HandshakeState,
     codec: &mut ProtocolCodec,
     _session: &SessionRef,
     packet: Packet,
 ) -> Result<Option<Packet>> {
     match handshake_state.stage {
-        coc_protocol::HandshakeStage::Initial => {
+        clash_of_clans_re_protocol::HandshakeStage::Initial => {
             if packet.header.message_id == MessageId::ClientHello as u16 {
                 // Client sent ClientHello (10100), respond with Encryption (20000) containing server random
                 let response = handshake_state.create_server_hello()?;
                 return Ok(Some(response));
             }
         }
-        coc_protocol::HandshakeStage::ClientHelloSent => {
+        clash_of_clans_re_protocol::HandshakeStage::ClientHelloSent => {
             // Client should not send anything here
         }
-        coc_protocol::HandshakeStage::ServerHelloReceived => {
+        clash_of_clans_re_protocol::HandshakeStage::ServerHelloReceived => {
             if packet.header.message_id == MessageId::Login as u16 {
                 let response = handshake_state.handle_login(&packet)?;
                 return Ok(Some(response));
             }
         }
-        coc_protocol::HandshakeStage::LoginSent => {
+        clash_of_clans_re_protocol::HandshakeStage::LoginSent => {
             if packet.header.message_id == MessageId::Encryption as u16 {
                 handshake_state.handle_encryption_response(&packet)?;
                 
@@ -143,23 +143,23 @@ async fn process_packet(
                 }
             }
         }
-        coc_protocol::HandshakeStage::EncryptionReceived => {
+        clash_of_clans_re_protocol::HandshakeStage::EncryptionReceived => {
             if packet.header.message_id == MessageId::LoginOk as u16 {
                 let _decrypted = handshake_state.handle_login_ok(&packet)?;
-                handshake_state.stage = coc_protocol::HandshakeStage::Complete;
+                handshake_state.stage = clash_of_clans_re_protocol::HandshakeStage::Complete;
                 
                 // TODO: Process login data, create avatar, etc.
                 info!("Handshake complete for session");
             }
         }
-        coc_protocol::HandshakeStage::LoginOkReceived => {
+        clash_of_clans_re_protocol::HandshakeStage::LoginOkReceived => {
             // Handshake complete, process game packets
             if handshake_state.get_client_keys_mut().is_some() {
                 let decrypted = codec.decrypt_packet(packet)?;
                 return handle_game_packet(decrypted).await;
             }
         }
-        coc_protocol::HandshakeStage::Complete => {
+        clash_of_clans_re_protocol::HandshakeStage::Complete => {
             if handshake_state.get_client_keys_mut().is_some() {
                 let decrypted = codec.decrypt_packet(packet)?;
                 return handle_game_packet(decrypted).await;
@@ -188,7 +188,7 @@ mod tests {
     #[tokio::test]
     async fn test_gateway_bind() {
         let addr = SocketAddr::new(IpAddr::V4(Ipv4Addr::new(127, 0, 0, 1)), 0);
-        let (pk, sk) = coc_protocol::crypto::generate_server_keypair();
+        let (pk, sk) = clash_of_clans_re_protocol::crypto::generate_server_keypair();
         let gateway = Gateway::bind(addr, (pk, sk)).await;
         assert!(gateway.is_ok());
     }

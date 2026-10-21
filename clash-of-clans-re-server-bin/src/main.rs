@@ -1,8 +1,8 @@
 use clap::Parser;
-use coc_server::{Gateway, GameState};
+use clash_of_clans_re_server::{Gateway, GameState};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};
 use std::net::SocketAddr;
-use coc_protocol::crypto;
+use clash_of_clans_re_protocol::crypto;
 
 #[derive(Parser, Debug)]
 #[command(name = "coc-server", version, about = "Clash of Clans Private Server")]
@@ -12,7 +12,7 @@ struct Args {
     addr: SocketAddr,
 
     /// Database URL
-    #[arg(short, long, default_value = "sqlite:coc_server.db")]
+    #[arg(short, long, default_value = "sqlite:clash_of_clans_re_server.db")]
     database: String,
 
     /// Server long-term public key (hex encoded, 32 bytes)

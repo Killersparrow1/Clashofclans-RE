@@ -1,5 +1,5 @@
 use clap::Parser;
-use coc_protocol::{HandshakeState, Packet, ProtocolCodec};
+use clash_of_clans_re_protocol::{HandshakeState, Packet, ProtocolCodec};
 use tokio::net::TcpStream;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 use tracing_subscriber::{layer::SubscriberExt, util::SubscriberInitExt};

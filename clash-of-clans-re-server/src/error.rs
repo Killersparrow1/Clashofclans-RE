@@ -6,7 +6,7 @@ pub enum ServerError {
     Io(#[from] std::io::Error),
 
     #[error("Protocol error: {0}")]
-    Protocol(#[from] coc_protocol::error::ProtocolError),
+    Protocol(#[from] clash_of_clans_re_protocol::error::ProtocolError),
 
     #[error("Database error: {0}")]
     Database(#[from] sqlx::Error),
