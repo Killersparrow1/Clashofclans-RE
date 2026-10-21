@@ -28,7 +28,7 @@ tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 anyhow = "1.0"
 hex = "0.4"
 rand = "0.8"
-dashmap = "5.5"
+dashmap = "6.2"
 tokio-stream = "0.1"
 async-compression = "0.4"
 flate2 = "1.0"
