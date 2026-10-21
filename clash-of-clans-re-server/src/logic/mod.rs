@@ -1,7 +1,17 @@
-// Game logic module - to be implemented in Phase 4
-// This will contain pure Rust implementations of Logic* classes
+// Game Logic Data Structures
+// Core data structures for Clash of Clans game logic.
 
-pub mod buildings;
-pub mod characters;
-pub mod combat;
-pub mod home;
+pub mod game_data;
+
+pub use game_data::{
+    BuildingData, BuildingType, BuildingState,
+    CharacterData, CharacterType,
+    SpellData, SpellType,
+    HeroData,
+    TrapData, TrapType,
+    DecorationData,
+    ObstacleData,
+    TownHallLevelData,
+    ResourceCost,
+    GameData,
+};

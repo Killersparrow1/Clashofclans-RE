@@ -10,6 +10,7 @@ categories = ["network-programming", "game-development"]
 
 [dependencies]
 clash-of-clans-re-protocol = { path = "../clash-of-clans-re-protocol" }
+clash-of-clans-re-assets = { path = "../clash-of-clans-re-assets" }
 tokio = { workspace = true }
 bytes = { workspace = true }
 tracing = { workspace = true }

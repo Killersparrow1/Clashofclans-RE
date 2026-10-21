@@ -9,9 +9,12 @@ pub mod csv;
 pub mod fingerprint;
 pub mod sc;
 
-pub use csv::{CsvParser, CsvRow, CsvTable};
-pub use fingerprint::{Fingerprint, AssetEntry};
-pub use sc::ScFile;
+pub use csv::{
+    CsvParser, CsvTable, CsvRow, CsvHeader, 
+    table_names
+};
+pub use fingerprint::{Fingerprint, AssetEntry, FingerprintCache};
+pub use sc::{ScFile, ScHeader, ScTexture};
 
 use thiserror::Error;
 

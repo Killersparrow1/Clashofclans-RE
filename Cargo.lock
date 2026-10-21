@@ -324,6 +324,7 @@ dependencies = [
  "anyhow",
  "bytes",
  "chrono",
+ "clash-of-clans-re-assets",
  "clash-of-clans-re-protocol",
  "dashmap",
  "hex",
