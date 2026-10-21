@@ -43,6 +43,51 @@ pub enum Target {
     None,
 }
 
+/// Spell instance during battle
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct DeployedSpell {
+    pub id: i64,
+    pub spell_data_id: i32,
+    pub level: i32,
+    pub position: Position,
+    pub radius: f32,
+    pub duration: f32,
+    pub remaining_time: f32,
+    pub state: SpellState,
+    pub affected_buildings: Vec<i64>,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub enum SpellState {
+    Active,
+    Expired,
+}
+
+/// Hero instance during battle
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct DeployedHero {
+    pub id: i64,
+    pub hero_data_id: i32,
+    pub level: i32,
+    pub position: Position,
+    pub hitpoints: f32,
+    pub max_hitpoints: f32,
+    pub state: HeroState,
+    pub last_attack_time: f32,
+    pub ability_ready: bool,
+    pub ability_cooldown_remaining: f32,
+    pub ability_active: bool,
+    pub ability_remaining_time: f32,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub enum HeroState {
+    Alive,
+    Dead,
+    Regenerating,
+    AbilityActive,
+}
+
 /// 2D position with sub-tile precision
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
 pub struct Position {
@@ -92,8 +137,11 @@ pub struct Battle {
     pub attacker_id: i64,
     pub defender_id: i64,
     pub attacker_troops: Vec<DeployedTroop>,
+    pub attacker_spells: Vec<DeployedSpell>,
+    pub attacker_heroes: Vec<DeployedHero>,
     pub defender_buildings: HashMap<i64, BuildingInstance>,
     pub defender_resources: ResourceManager,
+    pub defender_clan_castle_troops: Vec<DeployedTroop>, // Clan castle defending troops
     pub start_time: f32,
     pub current_time: f32,
     pub duration_limit: f32, // 3 minutes = 180 seconds
@@ -119,12 +167,25 @@ impl Battle {
             .map(|(k, v)| (*k, v.clone()))
             .collect();
         
+        // Clone clan castle troops from defender grid
+        let defender_clan_castle_troops: Vec<DeployedTroop> = defender_grid.buildings
+            .values()
+            .filter(|b| b.building_data_id == 1000) // Clan Castle building data ID
+            .flat_map(|b| {
+                // In a real implementation, this would come from the clan castle data
+                Vec::new()
+            })
+            .collect();
+        
         Self {
             attacker_id,
             defender_id,
             attacker_troops: Vec::new(),
+            attacker_spells: Vec::new(),
+            attacker_heroes: Vec::new(),
             defender_buildings,
             defender_resources,
+            defender_clan_castle_troops,
             start_time: 0.0,
             current_time: 0.0,
             duration_limit: 180.0, // 3 minutes

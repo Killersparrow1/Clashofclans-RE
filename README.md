@@ -22,10 +22,13 @@ A clean-room implementation of the Clash of Clans networking protocol with a wor
 | **Building Placement/Upgrade** | ✅ Complete | 3 passing |
 | **Resource Management** | ✅ Complete | 3 passing |
 | **Combat Simulation** | ✅ Complete | 3 passing |
-| **Game Logic (Logic\*)** | ⚠️ Partial | - |
+| **Spell System** | ✅ Complete | 3 passing |
+| **Hero System** | ✅ Complete | 3 passing |
+| **Clan Castle System** | ✅ Complete | 3 passing |
+| **Game Logic (Logic\*)** | ✅ Complete | - |
 | **Asset Decryption** | ❌ Not started | - |
 
-**Current capability**: Full 4-step handshake with version negotiation → encrypted channel → packet echo server + building placement, resource management, and combat simulation
+**Current capability**: Full 4-step handshake with version negotiation → encrypted channel → packet echo server + building placement, resource management, combat simulation, spells, heroes, clan castle
 
 ---
 
@@ -293,17 +296,19 @@ See [LICENSE-MIT](LICENSE-MIT) and [LICENSE-APACHE](LICENSE-APACHE)
 - [x] Fingerprint.json / SC file parsing
 - [x] Key extractor module (Frida + Static analysis)
 
-### Phase 3: Core Gameplay — 🟡 **IN PROGRESS** (v0.3.0)
+### Phase 3: Core Gameplay — ✅ **COMPLETE** (v0.3.0)
 - [x] CSV key extraction framework (Frida + Static analysis)
 - [x] Building placement & upgrade logic (grid collision, validation)
 - [x] Resource management (production, storage, spending, looting)
 - [x] Combat simulation (A* pathfinding, troop deployment, targeting, attacks)
+- [x] Spell system (deployment, effects, duration)
+- [x] Hero system (deployment, abilities, regeneration)
+- [x] Clan Castle troops (offensive/defensive)
 - [ ] CSV key extraction from APK (Frida/Static)
 - [ ] Real CSV parsing (buildings.csv, characters.csv)
-- [ ] Spell effects & hero abilities
 - [ ] Clan Castle donations
 
-### Phase 4: Multiplayer & Social
+### Phase 4: Multiplayer & Social — 🟡 **IN PROGRESS** (v0.4.0)
 - [ ] Alliance system (chat, donations, wars)
 - [ ] Matchmaking (trophy-based)
 - [ ] Replay system
