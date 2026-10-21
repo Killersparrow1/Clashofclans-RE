@@ -14,10 +14,11 @@ A clean-room implementation of the Clash of Clans networking protocol with a wor
 | **Packet Framing/Codec** | ✅ Complete | 14 passing |
 | **NaCl Crypto (libsodium)** | ✅ Complete | 2 passing |
 | **TCP Gateway Server** | ✅ Complete | 4 passing |
+| **Protocol Version Negotiation** | ✅ Complete (v1.0) | 1 passing |
 | **Game Logic (Logic\*)** | ⚠️ Stubs only | - |
 | **Asset Decryption** | ❌ Not started | - |
 
-**Current capability**: Full 4-step handshake → encrypted channel → packet echo server
+**Current capability**: Full 4-step handshake with version negotiation → encrypted channel → packet echo server
 
 ---
 
@@ -96,6 +97,8 @@ SUCCESS: Handshake completed successfully!
 ---
 
 ## 🔧 Protocol Details
+
+Full specification: **[PROTOCOL.md](PROTOCOL.md)**
 
 ### Packet Format
 ```
@@ -239,14 +242,14 @@ See [LICENSE-MIT](LICENSE-MIT) and [LICENSE-APACHE](LICENSE-APACHE)
 
 ## 🗺️ Roadmap
 
-### Phase 1: Protocol Polish (Current)
+### Phase 1: Protocol Polish — ✅ **COMPLETE** (v0.2.0)
 - [x] Handshake implementation
 - [x] Packet framing & codec
 - [x] Nonce synchronization
-- [ ] Packet documentation (all 70+ messages)
-- [ ] Protocol version negotiation
+- [x] Packet documentation (151 messages in `PROTOCOL.md`)
+- [x] Protocol version negotiation (v1.0)
 
-### Phase 2: Game Logic Foundation
+### Phase 2: Game Logic Foundation (Next)
 - [ ] CSV asset decryption (buildings.csv, characters.csv, etc.)
 - [ ] LogicBuilding / LogicCharacter data structures
 - [ ] Basic building placement/upgrades
