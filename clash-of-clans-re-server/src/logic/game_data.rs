@@ -422,3 +422,45 @@ mod tests {
         assert_eq!(character.max_level, 10);
     }
 }
+
+/// Extracted encryption keys from APK analysis
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct ExtractedKeys {
+    pub csv_aes_key: [u8; 16],
+    pub csv_aes_iv: [u8; 16],
+    pub sc_aes_key: [u8; 16],
+    pub sc_aes_iv: [u8; 16],
+    pub fingerprint_sha: String,
+    pub client_version: String,
+    pub extraction_method: String,
+    pub timestamp: String,
+}
+
+impl ExtractedKeys {
+    pub fn new() -> Self {
+        Self {
+            csv_aes_key: [0u8; 16],
+            csv_aes_iv: [0u8; 16],
+            sc_aes_key: [0u8; 16],
+            sc_aes_iv: [0u8; 16],
+            fingerprint_sha: String::new(),
+            client_version: String::new(),
+            extraction_method: String::new(),
+            timestamp: chrono::Utc::now().to_rfc3339(),
+        }
+    }
+    
+    pub fn is_valid(&self) -> bool {
+        self.csv_aes_key != [0u8; 16] && 
+        self.csv_aes_iv != [0u8; 16] &&
+        !self.client_version.is_empty()
+    }
+    
+    pub fn to_json(&self) -> String {
+        serde_json::to_string_pretty(self).unwrap_or_default()
+    }
+    
+    pub fn from_json(json: &str) -> Result<Self, serde_json::Error> {
+        serde_json::from_str(json)
+    }
+}

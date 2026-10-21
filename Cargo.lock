@@ -328,6 +328,7 @@ dependencies = [
  "clash-of-clans-re-protocol",
  "dashmap",
  "hex",
+ "log",
  "serde",
  "serde_json",
  "sodiumoxide",

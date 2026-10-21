@@ -14,4 +14,5 @@ pub use game_data::{
     TownHallLevelData,
     ResourceCost,
     GameData,
+    ExtractedKeys,
 };
