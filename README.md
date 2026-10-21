@@ -19,9 +19,13 @@ A clean-room implementation of the Clash of Clans networking protocol with a wor
 | **CSV Asset Parsing** | ✅ Complete | 3 passing |
 | **Fingerprint/SC Parsing** | ✅ Complete | 3 passing |
 | **Key Extractor (Frida + Static)** | ✅ Complete | - |
-| **Game Logic (Logic\*)** | ⚠️ Stubs only | - |
+| **Building Placement/Upgrade** | ✅ Complete | 3 passing |
+| **Resource Management** | ✅ Complete | 3 passing |
+| **Combat Simulation** | ✅ Complete | 3 passing |
+| **Game Logic (Logic\*)** | ⚠️ Partial | - |
+| **Asset Decryption** | ❌ Not started | - |
 
-**Current capability**: Full 4-step handshake with version negotiation → encrypted channel → packet echo server + asset decryption framework
+**Current capability**: Full 4-step handshake with version negotiation → encrypted channel → packet echo server + building placement, resource management, and combat simulation
 
 ---
 
@@ -289,14 +293,14 @@ See [LICENSE-MIT](LICENSE-MIT) and [LICENSE-APACHE](LICENSE-APACHE)
 - [x] Fingerprint.json / SC file parsing
 - [x] Key extractor module (Frida + Static analysis)
 
-### Phase 3: Core Gameplay (Next)
+### Phase 3: Core Gameplay — 🟡 **IN PROGRESS** (v0.3.0)
+- [x] CSV key extraction framework (Frida + Static analysis)
+- [x] Building placement & upgrade logic (grid collision, validation)
+- [x] Resource management (production, storage, spending, looting)
+- [x] Combat simulation (A* pathfinding, troop deployment, targeting, attacks)
 - [ ] CSV key extraction from APK (Frida/Static)
 - [ ] Real CSV parsing (buildings.csv, characters.csv)
-- [ ] Building placement/upgrade logic
-- [ ] Resource generation/collection
-- [ ] Attack simulation (LogicCombat)
-- [ ] Troop deployment & pathfinding
-- [ ] Spell effects
+- [ ] Spell effects & hero abilities
 - [ ] Clan Castle donations
 
 ### Phase 4: Multiplayer & Social

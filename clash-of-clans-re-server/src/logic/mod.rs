@@ -2,6 +2,9 @@
 // Core data structures for Clash of Clans game logic.
 
 pub mod game_data;
+pub mod buildings;
+pub mod resources;
+pub mod combat;
 
 pub use game_data::{
     BuildingData, BuildingType, BuildingState,
@@ -15,4 +18,17 @@ pub use game_data::{
     ResourceCost,
     GameData,
     ExtractedKeys,
+};
+
+pub use buildings::{
+    GridPos, GridTile, VillageGrid, BuildingInstance, BuildingDataSnapshot,
+};
+
+pub use resources::{
+    ResourceType, ResourceStorage, ResourceManager,
+};
+
+pub use combat::{
+    Position, DeployedTroop, TroopState, Target,
+    Battle, BattleState, find_path,
 };

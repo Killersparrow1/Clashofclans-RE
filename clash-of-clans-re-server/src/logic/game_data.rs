@@ -4,6 +4,7 @@
 
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use crate::logic::combat::CharacterDataSnapshot;
 
 /// Building type categories
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -107,7 +108,7 @@ pub struct BuildingData {
 }
 
 /// Resource cost for building/upgrading
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct ResourceCost {
     pub gold: i64,
     pub elixir: i64,
@@ -148,6 +149,24 @@ pub struct CharacterData {
     pub is_super_troop: bool,
     pub super_troop_base: Option<i32>,
     pub description: String,
+}
+    
+impl CharacterData {
+    /// Get character data at a specific level
+    pub fn get_data_at_level(&self, level: i32) -> CharacterDataSnapshot {
+        let level_idx = (level - 1) as usize;
+        CharacterDataSnapshot {
+            hitpoints: self.hitpoints.get(level_idx).copied().unwrap_or(0),
+            damage_per_second: self.damage_per_second.get(level_idx).copied().unwrap_or(0),
+            movement_speed: self.speed.get(level_idx).copied().unwrap_or(0.0),
+            attack_speed: self.attack_speed.get(level_idx).copied().unwrap_or(0.0),
+            range: self.range.get(level_idx).copied().unwrap_or(0.0),
+            attack_range: self.attack_range.get(level_idx).copied().unwrap_or(0.0),
+            favorite_target: self.favorite_target.get(level_idx).cloned().unwrap_or_default(),
+            damage_type: self.damage_type.get(level_idx).cloned().unwrap_or_default(),
+            is_super_troop: self.is_super_troop,
+        }
+    }
 }
 
 /// Character type categories
