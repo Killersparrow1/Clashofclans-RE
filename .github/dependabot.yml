@@ -1,0 +1,42 @@
+version: 2
+updates:
+  - package-ecosystem: "cargo"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "04:00"
+      timezone: "UTC"
+    open-pull-requests-limit: 10
+    labels:
+      - "dependencies"
+      - "automated"
+    commit-message:
+      prefix: "chore(deps)"
+      include: "scope"
+    groups:
+      rust-toolchain:
+        patterns:
+          - "rust-toolchain*"
+      tokio-ecosystem:
+        patterns:
+          - "tokio*"
+          - "tracing*"
+      serde-ecosystem:
+        patterns:
+          - "serde*"
+      sqlx-ecosystem:
+        patterns:
+          - "sqlx*"
+      crypto-deps:
+        patterns:
+          - "sodiumoxide*"
+          - "libsodium-sys*"
+      clap-ecosystem:
+        patterns:
+          - "clap*"
+      dev-tools:
+        patterns:
+          - "clippy*"
+          - "rustfmt*"
+          - "cargo-audit*"

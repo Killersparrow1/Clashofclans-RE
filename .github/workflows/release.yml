@@ -1,0 +1,65 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache dependencies
+        uses: Swatinem/rust-cache@v2
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libsodium-dev pkg-config
+
+      - name: Build release binaries
+        run: cargo build --release --workspace
+
+      - name: Extract version from tag
+        id: version
+        run: echo "VERSION=${GITHUB_REF_NAME#v}" >> $GITHUB_OUTPUT
+
+      - name: Create release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: Release ${{ github.ref_name }}
+          body: |
+            ## Clashofclans-RE ${{ steps.version.outputs.VERSION }}
+
+            ### Changes
+            - See commit history for details
+
+            ### Binaries
+            - `clash-of-clans-re-server`: Private server binary
+            - `clash-of-clans-re-client-test`: Protocol test client
+
+            ### Installation
+            ```bash
+            # Download and make executable
+            chmod +x clash-of-clans-re-server clash-of-clans-re-client-test
+
+            # Generate keypair
+            ./clash-of-clans-re-client-test --help
+            ```
+
+          files: |
+            target/release/clash-of-clans-re-server
+            target/release/clash-of-clans-re-client-test
+          draft: false
+          prerelease: false
